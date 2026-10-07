@@ -1,82 +1,23 @@
 <!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090909">
-<link rel="manifest" href="manifest.json">
-<title>JALDORX KI-Animator</title>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090909"><link rel="manifest" href="manifest.json"><title>JALDORX KI-Animator</title>
 <style>
-:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;min-height:100vh}
-.wrap{max-width:760px;margin:auto;padding:22px 16px 40px}.brand{font-weight:900;letter-spacing:.08em;font-size:25px}.brand span{color:#e50914}
-.sub{color:#8d8d8d;margin:5px 0 24px}.card{background:#111;border:1px solid #292929;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 8px 30px #0005}
-label{display:block;font-size:13px;color:#aaa;margin:0 0 8px}select,textarea,input{width:100%;background:#090909;color:#fff;border:1px solid #333;border-radius:12px;padding:13px;font:inherit}
-textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #333;border-radius:999px;padding:10px 13px;background:#0b0b0b;color:#ddd;cursor:pointer}.chip.active{border-color:#e50914;background:#220406;color:#fff}
-.btn{width:100%;border:0;border-radius:13px;padding:15px;font-weight:800;font-size:16px;cursor:pointer}.primary{background:#e50914;color:#fff}.secondary{background:#202020;color:#fff;margin-top:9px}
-.preview{margin-top:12px;border:1px dashed #444;border-radius:14px;padding:10px;color:#888;text-align:center;min-height:70px}.preview img{max-width:100%;max-height:220px;border-radius:10px}
-.status{display:none;margin-top:12px;color:#bbb}.bar{height:8px;background:#292929;border-radius:99px;overflow:hidden;margin-top:8px}.fill{height:100%;width:0;background:#e50914;transition:width .25s}
-.jobs{color:#aaa;font-size:14px}.job{padding:10px 0;border-bottom:1px solid #222}.job:last-child{border-bottom:0}.badge{font-size:11px;border:1px solid #444;border-radius:999px;padding:3px 7px;margin-left:6px}.note{font-size:12px;color:#777;margin-top:8px}
-@media(max-width:520px){.row{grid-template-columns:1fr}.wrap{padding-top:16px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="brand">JALDOR<span>X</span></div>
-  <div class="sub">KI-Animator · lokale Video-Werbung</div>
-
-  <section class="card">
-    <label for="product">PRODUKT</label>
-    <select id="product">
-      <option>MYSTERY DUFTBAUM</option><option>ZERUP – RED CHERRY</option><option>TRINKFLASCHE</option><option>CLOTHING</option><option>EIGENES PRODUKT</option>
-    </select>
-  </section>
-
-  <section class="card">
-    <label>PRODUKTBILD (optional)</label>
-    <input id="image" type="file" accept="image/*">
-    <div class="preview" id="preview">Noch kein Bild ausgewählt</div>
-  </section>
-
-  <section class="card">
-    <label for="idea">DEINE IDEE</label>
-    <textarea id="idea" placeholder="Beschreibe hier deine Idee für den Werbeclip …"></textarea>
-    <button class="btn secondary" id="improve">IDEE VERBESSERN</button>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <div><label>DAUER</label><div class="chips" id="duration"><button class="chip" data-v="5">5 Sek.</button><button class="chip active" data-v="10">10 Sek.</button></div></div>
-      <div><label>FORMAT</label><div class="chips" id="format"><button class="chip active" data-v="9:16">9:16</button><button class="chip" data-v="16:9">16:9</button><button class="chip" data-v="1:1">1:1</button></div></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <label for="engine">KI-MOTOR</label>
-    <select id="engine"><option value="jaldorx-local">JALDORX LOCAL AI · KAGE X2</option></select>
-    <div class="note">Lokaler Motor für deinen KAGE X2. Keine Cloud-Verarbeitung.</div>
-  </section>
-
-  <section class="card">
-    <button class="btn primary" id="create">CLIP ERSTELLEN</button>
-    <div class="status" id="status">JALDORX-Auftrag wird vorbereitet …<div class="bar"><div class="fill" id="fill"></div></div></div>
-  </section>
-
-  <section class="card">
-    <label>AUFTRÄGE</label>
-    <div class="jobs" id="jobs">Noch keine Aufträge.</div>
-  </section>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;min-height:100vh}.wrap{max-width:760px;margin:auto;padding:22px 16px 40px}.brand{font-weight:900;letter-spacing:.08em;font-size:25px}.brand span{color:#e50914}.sub{color:#8d8d8d;margin:5px 0 24px}.card{background:#111;border:1px solid #292929;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 8px 30px #0005}label{display:block;font-size:13px;color:#aaa;margin:0 0 8px}select,textarea,input{width:100%;background:#090909;color:#fff;border:1px solid #333;border-radius:12px;padding:13px;font:inherit}textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #333;border-radius:999px;padding:10px 13px;background:#0b0b0b;color:#ddd;cursor:pointer}.chip.active{border-color:#e50914;background:#220406;color:#fff}.btn{width:100%;border:0;border-radius:13px;padding:15px;font-weight:800;font-size:16px;cursor:pointer}.primary{background:#e50914;color:#fff}.secondary{background:#202020;color:#fff;margin-top:9px}.preview{margin-top:12px;border:1px dashed #444;border-radius:14px;padding:10px;color:#888;text-align:center;min-height:70px}.preview img{max-width:100%;max-height:220px;border-radius:10px}.status{display:none;margin-top:12px;color:#bbb}.bar{height:8px;background:#292929;border-radius:99px;overflow:hidden;margin-top:8px}.fill{height:100%;width:0;background:#e50914;transition:width .25s}.jobs{color:#aaa;font-size:14px}.job{padding:10px 0;border-bottom:1px solid #222}.job:last-child{border-bottom:0}.badge{font-size:11px;border:1px solid #444;border-radius:999px;padding:3px 7px;margin-left:6px}.note{font-size:12px;color:#777;margin-top:8px}@media(max-width:520px){.row{grid-template-columns:1fr}.wrap{padding-top:16px}}
+</style></head><body><div class="wrap">
+<div class="brand">JALDOR<span>X</span></div><div class="sub">KI-Animator · lokale Video-Werbung</div>
+<section class="card"><label for="product">PRODUKT</label><select id="product"><option>MYSTERY DUFTBAUM</option><option>ZERUP – RED CHERRY</option><option>TRINKFLASCHE</option><option>CLOTHING</option><option>EIGENES PRODUKT</option></select></section>
+<section class="card"><label>PRODUKTBILD (optional)</label><input id="image" type="file" accept="image/*"><div class="preview" id="preview">Noch kein Bild ausgewählt</div></section>
+<section class="card"><label for="idea">DEINE IDEE</label><textarea id="idea" placeholder="Beschreibe hier deine Idee für den Werbeclip …"></textarea><button class="btn secondary" id="improve">IDEE VERBESSERN</button></section>
+<section class="card"><div class="row"><div><label>DAUER</label><div class="chips" id="duration"><button class="chip" data-v="5">5 Sek.</button><button class="chip active" data-v="10">10 Sek.</button></div></div><div><label>FORMAT</label><div class="chips" id="format"><button class="chip active" data-v="9:16">9:16</button><button class="chip" data-v="16:9">16:9</button><button class="chip" data-v="1:1">1:1</button></div></div></div></section>
+<section class="card"><label for="engine">KI-MOTOR</label><select id="engine"><option value="jaldorx-local">JALDORX LOCAL AI · KAGE X2</option></select><div class="note">Lokaler Motor für deinen KAGE X2. Keine Cloud-Verarbeitung.</div></section>
+<section class="card"><button class="btn primary" id="create">CLIP ERSTELLEN</button><div class="status" id="status">JALDORX-Auftrag wird vorbereitet …<div class="bar"><div class="fill" id="fill"></div></div></div></section>
+<section class="card"><label>AUFTRÄGE</label><div class="jobs" id="jobs">Noch keine Aufträge.</div></section>
 </div>
 <script>
-const $=id=>document.getElementById(id);
-let duration="10",format="9:16",imageData=null;
-function setup(group,cb){document.querySelectorAll("#"+group+" .chip").forEach(b=>b.onclick=()=>{document.querySelectorAll("#"+group+" .chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");cb(b.dataset.v)})}
-setup("duration",v=>duration=v);setup("format",v=>format=v);
+const $=id=>document.getElementById(id);let duration="10",format="9:16",imageData=null;
+function setup(group,cb){document.querySelectorAll("#"+group+" .chip").forEach(b=>b.onclick=()=>{document.querySelectorAll("#"+group+" .chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");cb(b.dataset.v)})}setup("duration",v=>duration=v);setup("format",v=>format=v);
 $("image").onchange=e=>{const f=e.target.files[0];if(!f){imageData=null;$("preview").textContent="Noch kein Bild ausgewählt";return}const u=URL.createObjectURL(f);$("preview").innerHTML='<img alt="Produktbild" src="'+u+'">';const r=new FileReader();r.onload=()=>imageData=r.result;r.readAsDataURL(f)};
 $("improve").onclick=()=>{const p=$("product").value;const idea=$("idea").value.trim();$("idea").value=idea||"Erzeuge einen hochwertigen, dynamischen Werbeclip für "+p+". Dramatisches Licht, saubere Kamerabewegung, Produkt im Mittelpunkt, modernes Premium-Finish und starker Schluss mit JALDORX Branding."};
 function loadJobs(){const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");$("jobs").innerHTML=jobs.length?jobs.map(j=>'<div class="job"><strong>'+j.product+'</strong> · '+j.duration+' Sek. · '+j.format+' <span class="badge">'+j.status+'</span><br><small>'+j.idea.replace(/</g,"&lt;")+'</small></div>').join(""):"Noch keine Aufträge."}
 $("create").onclick=()=>{const idea=$("idea").value.trim();if(!idea){$("idea").focus();alert("Bitte zuerst eine Idee eingeben.");return}const job={id:"JX-"+Date.now().toString(36).toUpperCase(),product:$("product").value,idea,duration,format,engine:$("engine").value,image:imageData?"vorhanden":null,status:"WARTESCHLANGE",createdAt:new Date().toISOString()};const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");jobs.unshift(job);localStorage.setItem("jaldorx_jobs",JSON.stringify(jobs.slice(0,50)));$("status").style.display="block";$("fill").style.width="100%";setTimeout(()=>{$("status").style.display="none";$("fill").style.width="0%";loadJobs()},350)};
 loadJobs();
-</script>
-</body>
-</html>
+</script></body></html>
