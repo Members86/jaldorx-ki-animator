@@ -1,21 +1,48 @@
 #!/usr/bin/env python3
-"""JALDORX local job server for the future KAGE X2."""
+"""JALDORX local job server and worker pipeline."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json, os, threading, time, uuid
+from engine import VideoEngine
 
 HOST = os.environ.get("JALDORX_HOST", "127.0.0.1")
 PORT = int(os.environ.get("JALDORX_PORT", "8765"))
 jobs, lock = {}, threading.Lock()
+engine = VideoEngine()
 
 def new_job(payload):
     job = {
         "id": str(uuid.uuid4()), "status": "queued",
         "product": payload.get("product", ""), "idea": payload.get("idea", ""),
-        "duration": payload.get("duration", ""), "format": payload.get("format", ""),
-        "image": payload.get("image"), "created_at": int(time.time()), "result": None
+        "duration": str(payload.get("duration", "")), "format": payload.get("format", ""),
+        "image": payload.get("image"), "created_at": int(time.time()), "result": None,
+        "error": None
     }
     with lock: jobs[job["id"]] = job
+    threading.Thread(target=process_job, args=(job["id"],), daemon=True).start()
     return job
+
+def process_job(job_id):
+    with lock:
+        job = jobs.get(job_id)
+        if not job: return
+        job["status"] = "processing"
+    try:
+        # The engine will create the MP4 once a local model is installed.
+        result = engine.generate(
+            prompt=job["idea"], duration=int(job["duration"]),
+            aspect_ratio=job["format"], output_path=f"output/{job_id}.mp4"
+        )
+        with lock:
+            job["status"] = "completed"
+            job["result"] = result
+    except NotImplementedError as exc:
+        with lock:
+            job["status"] = "waiting_for_engine"
+            job["error"] = str(exc)
+    except Exception as exc:
+        with lock:
+            job["status"] = "failed"
+            job["error"] = str(exc)
 
 class Handler(BaseHTTPRequestHandler):
     def send_json(self, status, data):
@@ -30,12 +57,11 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def do_OPTIONS(self):
-        return self.send_json(204, {})
+    def do_OPTIONS(self): return self.send_json(204, {})
 
     def do_GET(self):
         if self.path == "/health":
-            return self.send_json(200, {"ok": True, "service": "JALDORX KI-Animator", "version": 1})
+            return self.send_json(200, {"ok": True, "service": "JALDORX KI-Animator", "version": 2, "engine": engine.name})
         if self.path == "/jobs":
             with lock: data = list(jobs.values())
             return self.send_json(200, {"jobs": data})
