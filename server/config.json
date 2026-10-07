@@ -1,0 +1,17 @@
+{
+  "app": "JALDORX KI-Animator",
+  "mode": "local",
+  "cloud_ai": false,
+  "max_duration_seconds": 10,
+  "formats": ["9:16", "16:9", "1:1"],
+  "first_model_test": {
+    "name": "Wan2.1-T2V-1.3B",
+    "model_id": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
+    "resolution": "480p",
+    "role": "first local test on KAGE X2"
+  },
+  "paths": {
+    "output_dir": "output",
+    "model_dir": "models"
+  }
+}
