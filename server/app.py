@@ -77,6 +77,8 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": True, "service": "JALDORX KI-Animator",
                 "version": 3, "engine": engine.name,
             })
+        if path == "/engine":
+            return self.send_json(200, engine.status())
         if path == "/jobs":
             with lock:
                 data = list(jobs.values())
