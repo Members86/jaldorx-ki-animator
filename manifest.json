@@ -1,0 +1,9 @@
+{
+  "name": "JALDORX KI-Animator",
+  "short_name": "JALDORX AI",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#070707",
+  "theme_color": "#090909",
+  "description": "JALDORX lokaler KI-Animator für kurze Werbeclips."
+}
