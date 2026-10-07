@@ -16,7 +16,7 @@ textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-column
 .btn{width:100%;border:0;border-radius:13px;padding:15px;font-weight:800;font-size:16px;cursor:pointer}.primary{background:#e50914;color:#fff}.secondary{background:#202020;color:#fff;margin-top:9px}
 .preview{margin-top:12px;border:1px dashed #444;border-radius:14px;padding:10px;color:#888;text-align:center;min-height:70px}.preview img{max-width:100%;max-height:220px;border-radius:10px}
 .status{display:none;margin-top:12px;color:#bbb}.bar{height:8px;background:#292929;border-radius:99px;overflow:hidden;margin-top:8px}.fill{height:100%;width:0;background:#e50914;transition:width .25s}
-.jobs{color:#aaa;font-size:14px}.job{padding:10px 0;border-bottom:1px solid #222}.job:last-child{border-bottom:0}.badge{font-size:11px;border:1px solid #444;border-radius:999px;padding:3px 7px;margin-left:6px}
+.jobs{color:#aaa;font-size:14px}.job{padding:10px 0;border-bottom:1px solid #222}.job:last-child{border-bottom:0}.badge{font-size:11px;border:1px solid #444;border-radius:999px;padding:3px 7px;margin-left:6px}.note{font-size:12px;color:#777;margin-top:8px}
 @media(max-width:520px){.row{grid-template-columns:1fr}.wrap{padding-top:16px}}
 </style>
 </head>
@@ -28,11 +28,7 @@ textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-column
   <section class="card">
     <label for="product">PRODUKT</label>
     <select id="product">
-      <option>MYSTERY DUFTBAUM</option>
-      <option>ZERUP – RED CHERRY</option>
-      <option>TRINKFLASCHE</option>
-      <option>CLOTHING</option>
-      <option>EIGENES PRODUKT</option>
+      <option>MYSTERY DUFTBAUM</option><option>ZERUP – RED CHERRY</option><option>TRINKFLASCHE</option><option>CLOTHING</option><option>EIGENES PRODUKT</option>
     </select>
   </section>
 
@@ -56,8 +52,14 @@ textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-column
   </section>
 
   <section class="card">
+    <label for="engine">KI-MOTOR</label>
+    <select id="engine"><option value="jaldorx-local">JALDORX LOCAL AI · KAGE X2</option></select>
+    <div class="note">Lokaler Motor für deinen KAGE X2. Keine Cloud-Verarbeitung.</div>
+  </section>
+
+  <section class="card">
     <button class="btn primary" id="create">CLIP ERSTELLEN</button>
-    <div class="status" id="status">Auftrag wird vorbereitet …<div class="bar"><div class="fill" id="fill"></div></div></div>
+    <div class="status" id="status">JALDORX-Auftrag wird vorbereitet …<div class="bar"><div class="fill" id="fill"></div></div></div>
   </section>
 
   <section class="card">
@@ -67,12 +69,14 @@ textarea{min-height:120px;resize:vertical}.row{display:grid;grid-template-column
 </div>
 <script>
 const $=id=>document.getElementById(id);
-let duration="10",format="9:16";
+let duration="10",format="9:16",imageData=null;
 function setup(group,cb){document.querySelectorAll("#"+group+" .chip").forEach(b=>b.onclick=()=>{document.querySelectorAll("#"+group+" .chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");cb(b.dataset.v)})}
 setup("duration",v=>duration=v);setup("format",v=>format=v);
-$("image").onchange=e=>{const f=e.target.files[0];if(!f){$("preview").textContent="Noch kein Bild ausgewählt";return}const u=URL.createObjectURL(f);$("preview").innerHTML='<img alt="Produktbild" src="'+u+'">';};
-$("improve").onclick=()=>{const p=$("product").value;const idea=$("idea").value.trim();$("idea").value=idea||"Erzeuge einen hochwertigen, dynamischen Werbeclip für "+p+". Dramatisches Licht, schnelle aber saubere Kamerabewegung, Produkt im Mittelpunkt, modernes Premium-Finish, starker Schluss mit JALDORX Branding.";};
-$("create").onclick=()=>{const idea=$("idea").value.trim();if(!idea){$("idea").focus();alert("Bitte zuerst eine Idee eingeben.");return}$("status").style.display="block";$("fill").style.width="0%";let n=0;const t=setInterval(()=>{n+=10;$("fill").style.width=n+"%";if(n>=100){clearInterval(t);const d=document.createElement("div");d.className="job";d.innerHTML="<strong>"+$("product").value+"</strong> · "+duration+" Sek. · "+format+' <span class="badge">TEST-AUFTRAG</span><br><small>Bereit für die lokale KI-Anbindung.</small>';$("jobs").prepend(d);$("status").style.display="none";}},120);};
+$("image").onchange=e=>{const f=e.target.files[0];if(!f){imageData=null;$("preview").textContent="Noch kein Bild ausgewählt";return}const u=URL.createObjectURL(f);$("preview").innerHTML='<img alt="Produktbild" src="'+u+'">';const r=new FileReader();r.onload=()=>imageData=r.result;r.readAsDataURL(f)};
+$("improve").onclick=()=>{const p=$("product").value;const idea=$("idea").value.trim();$("idea").value=idea||"Erzeuge einen hochwertigen, dynamischen Werbeclip für "+p+". Dramatisches Licht, saubere Kamerabewegung, Produkt im Mittelpunkt, modernes Premium-Finish und starker Schluss mit JALDORX Branding."};
+function loadJobs(){const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");$("jobs").innerHTML=jobs.length?jobs.map(j=>'<div class="job"><strong>'+j.product+'</strong> · '+j.duration+' Sek. · '+j.format+' <span class="badge">'+j.status+'</span><br><small>'+j.idea.replace(/</g,"&lt;")+'</small></div>').join(""):"Noch keine Aufträge."}
+$("create").onclick=()=>{const idea=$("idea").value.trim();if(!idea){$("idea").focus();alert("Bitte zuerst eine Idee eingeben.");return}const job={id:"JX-"+Date.now().toString(36).toUpperCase(),product:$("product").value,idea,duration,format,engine:$("engine").value,image:imageData?"vorhanden":null,status:"WARTESCHLANGE",createdAt:new Date().toISOString()};const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");jobs.unshift(job);localStorage.setItem("jaldorx_jobs",JSON.stringify(jobs.slice(0,50)));$("status").style.display="block";$("fill").style.width="100%";setTimeout(()=>{$("status").style.display="none";$("fill").style.width="0%";loadJobs()},350)};
+loadJobs();
 </script>
 </body>
 </html>
