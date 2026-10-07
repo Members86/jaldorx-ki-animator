@@ -1,6 +1,6 @@
 # JALDORX KI-Animator – lokaler Job-Server
 
-Der Ordner enthält den ersten echten Server-Baustein für den späteren **KAGE X2**.
+Der Ordner enthält die lokalen Server-Bausteine für den späteren **KAGE X2**.
 
 ## Start
 
@@ -10,7 +10,7 @@ Auf dem KAGE X2 reicht später zunächst:
 python3 server/app.py
 ```
 
-Der Server läuft standardmäßig nur auf:
+Standardmäßig läuft der Server auf:
 
 ```
 http://127.0.0.1:8765
@@ -21,11 +21,9 @@ http://127.0.0.1:8765
 - `GET /health` – prüft, ob der Server läuft
 - `GET /jobs` – listet Aufträge
 - `GET /jobs/<id>` – zeigt einen Auftrag
-- `POST /jobs` – nimmt einen neuen Videoauftrag an
+- `POST /jobs` – nimmt einen Videoauftrag an
 
 ## Auftrag
-
-Beispiel:
 
 ```json
 {
@@ -37,10 +35,16 @@ Beispiel:
 }
 ```
 
+## Video-KI
+
+`engine.py` ist die interne Adapter-Schicht für die spätere **JALDORX LOCAL AI**.
+
+Dort wird auf dem KAGE X2 ein lokales Video-Modell angeschlossen. Die Benutzeroberfläche bleibt dabei JALDORX; der eigentliche KI-Motor läuft unsichtbar im Hintergrund.
+
+Die konkrete Modellentscheidung (z. B. Wan oder LTX) treffen wir erst, wenn der KAGE X2 da ist und wir VRAM, Geschwindigkeit und Bildqualität auf der echten Hardware testen können.
+
 ## Wichtig
 
-Das ist zunächst **nur die Auftragszentrale**. Noch keine Video-KI.
-
-Der nächste Baustein wird die Verbindung dieses Servers mit **ComfyUI** und der später ausgewählten lokalen Video-KI.
+Noch wird kein echtes MP4 erzeugt. Der Server nimmt Aufträge entgegen und ist für die lokale Video-KI vorbereitet.
 
 Der Server ist absichtlich standardmäßig nur lokal gebunden. Die spätere Fernverbindung vom iPad wird über ein privates Netzwerk wie Tailscale abgesichert – nicht über einen offenen Router-Port.
