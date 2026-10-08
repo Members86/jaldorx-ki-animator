@@ -118,6 +118,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(400, {"error": "Ungültiges JSON"})
         if not payload.get("idea"):
             return self.send_json(400, {"error": "idea fehlt"})
+        image = payload.get("image")
+        if image is not None and not isinstance(image, str):
+            return self.send_json(400, {"error": "image muss ein String sein"})
+        if isinstance(image, str) and len(image) > 2_000_000:
+            return self.send_json(400, {"error": "image ist zu groß"})
         if str(payload.get("duration")) not in ("5", "10"):
             return self.send_json(400, {"error": "duration muss 5 oder 10 sein"})
         if payload.get("format") not in ("9:16", "16:9", "1:1"):
