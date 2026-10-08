@@ -15,7 +15,52 @@ $("image").onchange=e=>{const f=e.target.files[0];if(!f){imageData=null;$("previ
 $("improve").onclick=()=>{const p=$("product").value;const idea=$("idea").value.trim();$("idea").value=idea||"Erzeuge einen hochwertigen, dynamischen Werbeclip für "+p+". Dramatisches Licht, saubere Kamerabewegung, Produkt im Mittelpunkt, modernes Premium-Finish und starker Schluss mit JALDORX Branding."};
 function setState(ok,text){$("pcstate").textContent=ok?"KAGE X2 verbunden":"Nicht verbunden";$("pcdetail").textContent=text;$("connection").textContent=ok?"KAGE X2":"LOCAL";$("dot").style.background=ok?"#e50914":"#777"}
 $("check").onclick=async()=>{pcUrl=$("pcurl").value.trim().replace(/\/$/,"");localStorage.setItem("jaldorx_pc_url",pcUrl);if(!pcUrl){setState(false,"Bitte zuerst die KAGE-X2-Adresse eintragen.");return}setState(false,"Verbindung wird geprüft …");try{const r=await fetch(pcUrl+"/health",{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setState(true,d.service+" · bereit für Aufträge");}catch(e){setState(false,"KAGE X2 nicht erreichbar oder Verbindung blockiert.");}};
-function loadJobs(){const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");$("jobs").innerHTML=jobs.length?jobs.map(j=>'<div class="job"><strong>'+j.product+'</strong> · '+j.duration+' Sek. · '+j.format+' <span class="badge">'+j.status+'</span><br><small>'+j.idea.replace(/</g,"&lt;")+'</small></div>').join(""):'<div class="empty">Noch keine Aufträge.</div>'}
-$("create").onclick=async()=>{const idea=$("idea").value.trim();if(!idea){$("idea").focus();alert("Bitte zuerst eine Idee eingeben.");return}const job={id:"JX-"+Date.now().toString(36).toUpperCase(),product:$("product").value,idea,duration,format,engine:"jaldorx-local",image:imageData?"vorhanden":null,status:"WARTESCHLANGE",createdAt:new Date().toISOString()};const jobs=JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]");jobs.unshift(job);localStorage.setItem("jaldorx_jobs",JSON.stringify(jobs.slice(0,50)));$("status").style.display="block";$("fill").style.width="35%";if(pcUrl){try{const payload={product:job.product,idea:job.idea,duration:job.duration,format:job.format,image:imageData};const r=await fetch(pcUrl+"/jobs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});if(r.ok){const remote=await r.json();job.id=remote.id;job.status="AUF KAGE X2";localStorage.setItem("jaldorx_jobs",JSON.stringify([job,...jobs].slice(0,50)));$("fill").style.width="100%";}}catch(e){job.status="WARTESCHLANGE · PC NICHT ERREICHBAR";localStorage.setItem("jaldorx_jobs",JSON.stringify([job,...jobs].slice(0,50)))}}else $("fill").style.width="100%";setTimeout(()=>{$("status").style.display="none";$("fill").style.width="0%";loadJobs()},500)};
-$("clear").onclick=()=>{localStorage.removeItem("jaldorx_jobs");loadJobs()};loadJobs();
-</script></body></html>
+function getJobs(){return JSON.parse(localStorage.getItem("jaldorx_jobs")||"[]")}
+function saveJobs(list){localStorage.setItem("jaldorx_jobs",JSON.stringify(list.slice(0,50)))}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function loadJobs(){
+  const list=getJobs();
+  $("jobs").innerHTML=list.length?list.map(j=>{
+    const result=j.resultUrl?'<br><a href="'+esc(j.resultUrl)+'" target="_blank" style="color:#fff">VIDEO ÖFFNEN</a>':"";
+    return '<div class="job"><strong>'+esc(j.product)+'</strong> · '+esc(j.duration)+' Sek. · '+esc(j.format)+' <span class="badge">'+esc(j.status)+'</span><br><small>'+esc(j.idea)+'</small>'+result+'</div>'
+  }).join(""):'<div class="empty">Noch keine Aufträge.</div>';
+}
+async function pollJob(job){
+  if(!pcUrl||!job.id||job.id.startsWith("JX-"))return;
+  try{
+    const r=await fetch(pcUrl+"/jobs/"+encodeURIComponent(job.id),{cache:"no-store"});
+    if(!r.ok)return;
+    const remote=await r.json();
+    const list=getJobs(), index=list.findIndex(x=>x.id===job.id);
+    if(index<0)return;
+    list[index].status=remote.status||list[index].status;
+    if(remote.download_url)list[index].resultUrl=pcUrl+remote.download_url;
+    saveJobs(list);loadJobs();
+    if(remote.status==="processing"||remote.status==="queued")setTimeout(()=>pollJob(list[index]),1500);
+  }catch(e){}
+}
+$("create").onclick=async()=>{
+  const idea=$("idea").value.trim();
+  if(!idea){$("idea").focus();alert("Bitte zuerst eine Idee eingeben.");return}
+  const job={id:"JX-"+Date.now().toString(36).toUpperCase(),product:$("product").value,idea,duration,format,engine:"jaldorx-local",image:imageData?"vorhanden":null,status:"WARTESCHLANGE",createdAt:new Date().toISOString()};
+  const list=getJobs();list.unshift(job);saveJobs(list);loadJobs();
+  $("status").style.display="block";$("fill").style.width="20%";
+  if(pcUrl){
+    try{
+      const payload={product:job.product,idea:job.idea,duration:job.duration,format:job.format,image:imageData};
+      const r=await fetch(pcUrl+"/jobs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      if(!r.ok)throw Error();
+      const remote=await r.json();
+      job.id=remote.id;job.status=remote.status==="queued"?"AUF KAGE X2":"AUF KAGE X2";
+      const updated=getJobs();const oldIndex=updated.findIndex(x=>x.createdAt===job.createdAt);
+      if(oldIndex>=0)updated[oldIndex]=job;else updated.unshift(job);
+      saveJobs(updated);loadJobs();$("fill").style.width="45%";pollJob(job);
+    }catch(e){
+      job.status="WARTESCHLANGE · PC NICHT ERREICHBAR";
+      const updated=getJobs();const i=updated.findIndex(x=>x.createdAt===job.createdAt);if(i>=0)updated[i]=job;saveJobs(updated);loadJobs();$("fill").style.width="100%";
+    }
+  }else $("fill").style.width="100%";
+  setTimeout(()=>{$("status").style.display="none";$("fill").style.width="0%"},700);
+};
+$("clear").onclick=()=>{localStorage.removeItem("jaldorx_jobs");loadJobs()};
+loadJobs();</script></body></html>
