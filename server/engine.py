@@ -46,9 +46,15 @@ class VideoEngine:
         This method is intentionally the only place that needs to know how
         the selected model is executed.
         """
+        # Image-to-video wiring is intentionally kept behind the same adapter.
+        # The concrete Wan pipeline is enabled only after the KAGE X2 runtime test.
+        if image_path:
+            mode = "image-to-video"
+        else:
+            mode = "text-to-video"
         raise NotImplementedError(
-            "Lokale Video-KI ist noch nicht installiert. "
-            "Der JALDORX-Motor wird auf dem KAGE X2 angeschlossen."
+            f"JALDORX {mode}: lokaler Videomotor noch nicht installiert. "
+            "Der Wan-Motor wird nach dem KAGE X2 Runtime-Test aktiviert."
         )
 
 
