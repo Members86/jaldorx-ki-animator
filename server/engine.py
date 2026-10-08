@@ -46,6 +46,13 @@ class VideoEngine:
         This method is intentionally the only place that needs to know how
         the selected model is executed.
         """
+        if duration not in (5, 10):
+            raise ValueError("Dauer muss 5 oder 10 Sekunden sein.")
+        if aspect_ratio not in ("9:16", "16:9", "1:1"):
+            raise ValueError("Ungültiges Seitenverhältnis.")
+        if not prompt.strip():
+            raise ValueError("Prompt darf nicht leer sein.")
+
         # Image-to-video wiring is intentionally kept behind the same adapter.
         # The concrete Wan pipeline is enabled only after the KAGE X2 runtime test.
         if image_path:
